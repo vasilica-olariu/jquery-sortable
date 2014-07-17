@@ -159,7 +159,7 @@
   }
 
   function setDimensions(array, dimensions, tolerance, useOffset) {
-    var i = array.length,
+    var i = array.length, psl, pst,
     offsetMethod = useOffset ? "offset" : "position"
     tolerance = tolerance || 0
 
@@ -167,8 +167,8 @@
       var el = array[i].el ? array[i].el : $(array[i]),
       // use fitting method
       pos = el[offsetMethod]()
-      pos.left += parseInt(el.css('margin-left'), 10)
-      pos.top += parseInt(el.css('margin-top'),10)
+      pos.left += parseInt(el.css('margin-left'), 10) + el.scrollLeft() + (psl != null ? psl : psl = el.parent().scrollLeft())
+      pos.top += parseInt(el.css('margin-top'),10) + el.scrollTop() + (pst != null ? pst : pst = el.parent().scrollTop())
       dimensions[i] = [
         pos.left - tolerance,
         pos.left + el.outerWidth() + tolerance,
@@ -181,8 +181,8 @@
   function getRelativePosition(pointer, element) {
     var offset = element.offset()
     return {
-      left: pointer.left - offset.left,
-      top: pointer.top - offset.top
+      left: pointer.left - offset.left + element.scrollLeft(),
+      top: pointer.top - offset.top + element.scrollTop()
     }
   }
 
@@ -340,7 +340,7 @@
       this.options.afterMove(this.placeholder, container, item)
     },
     getContainerDimensions: function  () {
-      if(!this.containerDimensions)
+      // if(!this.containerDimensions)
         setDimensions(this.containers, this.containerDimensions = [], this.options.tolerance, !this.$getOffsetParent())
       return this.containerDimensions
     },
@@ -536,10 +536,10 @@
       this.rootGroup.movePlaceholder(this, item, method, sameResultBox)
     },
     getItemDimensions: function  () {
-      if(!this.itemDimensions){
+      // if(!this.itemDimensions){
         this.items = this.$getChildren(this.el, "item").filter(":not(.placeholder, .dragged)").get()
         setDimensions(this.items, this.itemDimensions = [], this.options.tolerance)
-      }
+      // }
       return this.itemDimensions
     },
     getItemOffsetParent: function  () {
